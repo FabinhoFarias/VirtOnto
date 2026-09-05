@@ -1,0 +1,179 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+' ==========================================
+' CAMADA DE APRESENTAÇÃO (ALTO NÍVEL)
+' ==========================================
+package "Frontend Layer (Presentation)" {
+    class "Web Interface\n(React + Three.js)" as WebClient << (C,#ADD8E6) Frontend >> {
+        + renderGraph3D(json3D: std::string)
+    }
+
+    class "VR Application\n(Unity Engine)" as VRClient << (C,#ADD8E6) Frontend >> {
+        + instantiatePrefabs3D(json3D: std::string)
+    }
+}
+
+' ==========================================
+' CAMADA LÓGICA DE DOMÍNIO (ALTO NÍVEL)
+' ==========================================
+package "Backend Layer (Java & Semantics)" {
+    class "Java Semantic Engine\n(Spring Boot + OWL API)" as JavaEngine << (J,#90EE90) Backend >> {
+        + extractOntologyGraph(owlFile): std::string
+    }
+}
+
+' ==========================================
+' CAMADA DE PROCESSAMENTO ESPACIAL (DETALHADA EM C++)
+' ==========================================
+package "C++ Spatial Engine (Core Domain)" {
+
+    package "Model Layer" {
+
+        struct Vector3D {
+            + x: float
+            + y: float
+            + z: float
+            + distanceTo(other: Vector3D): float
+            + operator+(other: Vector3D): Vector3D
+            + operator*(scalar: float): Vector3D
+        }
+
+        enum NodeType {
+            CLASS
+            INDIVIDUAL
+            PROPERTY
+        }
+
+        abstract class OntologyElement {
+            # id: std::string
+            # label: std::string
+            + OntologyElement(id: std::string, label: std::string)
+            + {abstract} ~OntologyElement()
+            + getId(): std::string
+            + getLabel(): std::string
+            + {abstract} getDisplayColor(): std::string
+        }
+
+        class Node {
+            - type: NodeType
+            - position: Vector3D
+            - velocity: Vector3D
+            - mass: float
+            + Node(id: std::string, label: std::string, type: NodeType)
+            + getType(): NodeType
+            + getPosition(): Vector3D
+            + setPosition(pos: Vector3D): void
+            + getVelocity(): Vector3D
+            + setVelocity(vel: Vector3D): void
+            + getMass(): float
+            + getDisplayColor(): std::string override
+        }
+
+        class Edge {
+            - sourceId: std::string
+            - targetId: std::string
+            - relationType: std::string
+            - weight: float
+            + Edge(id: std::string, source: std::string, target: std::string, relation: std::string)
+            + getSourceId(): std::string
+            + getTargetId(): std::string
+            + getRelationType(): std::string
+            + getWeight(): float
+            + getDisplayColor(): std::string override
+        }
+
+        class Graph {
+            - nodes: std::unordered_map<std::string, std::shared_ptr<Node>>
+            - edges: std::vector<std::shared_ptr<Edge>>
+            + addNode(node: std::shared_ptr<Node>): void
+            + addEdge(edge: std::shared_ptr<Edge>): void
+            + getNode(id: std::string): std::shared_ptr<Node>
+            + getNodes(): const std::unordered_map<std::string, std::shared_ptr<Node>>&
+            + getEdges(): const std::vector<std::shared_ptr<Edge>>&
+            + getNodeCount(): size_t
+            + getEdgeCount(): size_t
+            + clear(): void
+        }
+    }
+
+    package "Algorithm Layer (Strategy Pattern)" {
+
+        interface ILayoutStrategy {
+            + {abstract} ~ILayoutStrategy()
+            + {abstract} applyLayout(graph: Graph&, iterations: int): void
+        }
+
+        class ForceDirectedLayout3D {
+            - attractionConstant: float
+            - repulsionConstant: float
+            - damping: float
+            + ForceDirectedLayout3D(kAttr: float, kRep: float)
+            + applyLayout(graph: Graph&, iterations: int): void override
+            - calculateRepulsion(graph: Graph&): void
+            - calculateAttraction(graph: Graph&): void
+        }
+
+        class SphericalLayout3D {
+            - radius: float
+            + SphericalLayout3D(radius: float)
+            + applyLayout(graph: Graph&, iterations: int): void override
+        }
+
+        class HierarchicalLayout3D {
+            - layerDistance: float
+            + HierarchicalLayout3D(layerDist: float)
+            + applyLayout(graph: Graph&, iterations: int): void override
+        }
+    }
+
+    package "Service Layer (Facade, Factory & Serialization)" {
+
+        class GraphBuilder {
+            + {static} buildFromJSON(rawJson: std::string): Graph
+        }
+
+        class GraphSerializer {
+            + {static} toJSON3D(graph: const Graph&): std::string
+        }
+
+        class SpatialEngineFacade {
+            - currentGraph: Graph
+            - layoutStrategy: std::unique_ptr<ILayoutStrategy>
+            + SpatialEngineFacade()
+            + loadOntologyGraph(jsonInput: std::string): void
+            + setLayoutStrategy(strategy: std::unique_ptr<ILayoutStrategy>): void
+            + processLayout(iterations: int): void
+            + getRenderableJSON(): std::string
+        }
+    }
+}
+
+' ==========================================
+' RELACIONAMENTOS INTERNOS DO C++
+' ==========================================
+OntologyElement <|-- Node
+OntologyElement <|-- Edge
+Node o-- Vector3D : possui pos/vel
+
+Graph "1" *-- "0..*" Node : gerencia via shared_ptr
+Graph "1" *-- "0..*" Edge : gerencia via shared_ptr
+
+ILayoutStrategy <|.. ForceDirectedLayout3D
+ILayoutStrategy <|.. SphericalLayout3D
+ILayoutStrategy <|.. HierarchicalLayout3D
+
+SpatialEngineFacade *-- Graph
+SpatialEngineFacade o-- ILayoutStrategy
+SpatialEngineFacade ..> GraphBuilder : usa
+SpatialEngineFacade ..> GraphSerializer : usa
+
+' ==========================================
+' CONEXÕES ENTRE CAMADAS (FLUXO DE DADOS)
+' ==========================================
+JavaEngine ..> SpatialEngineFacade : 1. Envia JSON lógico bruto
+SpatialEngineFacade ..> WebClient : 2. Envia JSON 3D (X, Y, Z)
+SpatialEngineFacade ..> VRClient : 2. Envia JSON 3D (X, Y, Z)
+
+@enduml
