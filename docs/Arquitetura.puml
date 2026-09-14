@@ -3,31 +3,20 @@ skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
 
 ' ==========================================
-' CAMADA DE APRESENTAÇÃO (ALTO NÍVEL)
+' CAMADA DE ONTOLOGIA & RAZOAMENTO (API PRONTA)
 ' ==========================================
-package "Frontend Layer (Presentation)" {
-    class "Web Interface\n(React + Three.js)" as WebClient << (C,#ADD8E6) Frontend >> {
-        + renderGraph3D(json3D: std::string)
-    }
-
-    class "VR Application\n(Unity Engine)" as VRClient << (C,#ADD8E6) Frontend >> {
-        + instantiatePrefabs3D(json3D: std::string)
-    }
-}
-
-' ==========================================
-' CAMADA LÓGICA DE DOMÍNIO (ALTO NÍVEL)
-' ==========================================
-package "Backend Layer (Java & Semantics)" {
-    class "Java Semantic Engine\n(Spring Boot + OWL API)" as JavaEngine << (J,#90EE90) Backend >> {
-        + extractOntologyGraph(owlFile): std::string
+package "Ontology Reasoner Layer (UnityIIS API)" {
+    class "UnityIIS Web Service\n(BaseVISor Engine)" as IISReasoner << (W,#FFD700) Web API >> {
+        + queryOntology(): std::string
+        + updateOntologyFile(input: std::string): void
+        + updateBVRFile(input: std::string): void
     }
 }
 
 ' ==========================================
 ' CAMADA DE PROCESSAMENTO ESPACIAL (DETALHADA EM C++)
 ' ==========================================
-package "C++ Spatial Engine (Core Domain)" {
+package "C++ Spatial Engine (Core Domain - POO)" {
 
     package "Model Layer" {
 
@@ -151,11 +140,24 @@ package "C++ Spatial Engine (Core Domain)" {
 }
 
 ' ==========================================
-' RELACIONAMENTOS INTERNOS DO C++
+' CAMADA DE APRESENTAÇÃO (FRONTEND CLIENTS)
+' ==========================================
+package "Frontend Layer (Presentation)" {
+    class "Web Interface\n(React + Three.js)" as WebClient << (C,#ADD8E6) Frontend >> {
+        + renderGraph3D(json3D: std::string)
+    }
+
+    class "VR Application\n(Unity Engine)" as VRClient << (C,#ADD8E6) Frontend >> {
+        + instantiatePrefabs3D(json3D: std::string)
+    }
+}
+
+' ==========================================
+' RELACIONAMENTOS INTERNOS DO C++ (POO)
 ' ==========================================
 OntologyElement <|-- Node
 OntologyElement <|-- Edge
-Node o-- Vector3D : possui pos/vel
+Node o-- Vector3D : armazena posição/velocidade
 
 Graph "1" *-- "0..*" Node : gerencia via shared_ptr
 Graph "1" *-- "0..*" Edge : gerencia via shared_ptr
@@ -166,14 +168,14 @@ ILayoutStrategy <|.. HierarchicalLayout3D
 
 SpatialEngineFacade *-- Graph
 SpatialEngineFacade o-- ILayoutStrategy
-SpatialEngineFacade ..> GraphBuilder : usa
-SpatialEngineFacade ..> GraphSerializer : usa
+SpatialEngineFacade ..> GraphBuilder : usa para instanciar
+SpatialEngineFacade ..> GraphSerializer : usa para exportar
 
 ' ==========================================
-' CONEXÕES ENTRE CAMADAS (FLUXO DE DADOS)
+' FLUXO DE DADOS ENTRE AS CAMADAS
 ' ==========================================
-JavaEngine ..> SpatialEngineFacade : 1. Envia JSON lógico bruto
-SpatialEngineFacade ..> WebClient : 2. Envia JSON 3D (X, Y, Z)
-SpatialEngineFacade ..> VRClient : 2. Envia JSON 3D (X, Y, Z)
+IISReasoner ..> SpatialEngineFacade : 1. Envia estrutura lógica da ontologia
+SpatialEngineFacade ..> WebClient : 2. Envia JSON 3D com coordenadas (X, Y, Z)
+SpatialEngineFacade ..> VRClient : 2. Envia JSON 3D com coordenadas (X, Y, Z)
 
 @enduml
