@@ -30,4 +30,4 @@ private:
     float mass_{1.0F};
 };
 
-} // namespace virtonto::model
+} 
