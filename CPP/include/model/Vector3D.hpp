@@ -13,6 +13,7 @@ struct Vector3D {
     Vector3D operator*(float scalar) const noexcept;
     Vector3D& operator+=(const Vector3D& other) noexcept;
     Vector3D& operator*=(float scalar) noexcept;
+    Vector3D& operator*=(const Vector3D& other) noexcept;
 };
 
 } // namespace virtonto::model

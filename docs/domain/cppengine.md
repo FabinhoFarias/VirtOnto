@@ -10,7 +10,7 @@
 * **Responsabilidade:**
   * Armazenar a posição tridimensional $(x, y, z)$ e os vetores de velocidade/força dos nós.
   * Executar operações algébricas vetoriais via sobrecarga de operadores (`+`, `-`, `*`).
-  * Calcular distâncias euclidianas (`distanceTo`) e magnitudes físicas (`magnitude` e `normalized`) necessárias para os algoritmos de disposição espacial.
+  * Calcular distâncias euclidianas (`distanceTo`) e magnitudes físicas (`magnitude` e `normalized`) necessárias para os algoritmos de disposição espacial. 
 
 ### `NodeType` (`Node.hpp`)
 * **O que é:** Um `enum class` (enumeração fortemente tipada).
