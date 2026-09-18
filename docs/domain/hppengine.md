@@ -5,7 +5,7 @@
 ## 1. Módulo Model (Estruturas de Dados e Entidades)
 
 ### `Vector3D` (`Vector3D.hpp`)
-* **O que é:** Uma `struct` matemática de baixo nível para representação de coordenadas e forças no espaço tridimensional.
+* **O que é:** Uma `struct` maatemática de baixo nível para representação de coordenadas e forças no espaço tridimensional.
 * **Por que é uma `struct`:** Em C++, dados puros sem regras complexas de estado são definidos como `struct`. Seus membros `x`, `y` e `z` são públicos por padrão.
 * **Responsabilidade:**
   * Armazenar a posição tridimensional $(x, y, z)$ e os vetores de velocidade/força dos nós.

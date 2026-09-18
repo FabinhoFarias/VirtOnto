@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 
 namespace virtonto::model {
@@ -7,11 +6,12 @@ namespace virtonto::model {
 class OntologyElement {
 public:
     OntologyElement(std::string id, std::string label);
-    virtual ~OntologyElement() = 0;
+    virtual ~OntologyElement(); // Destrutor virtual obrigatório para classes base
 
-    const std::string& getId() const noexcept;
-    const std::string& getLabel() const noexcept;
-    virtual std::string getDisplayColor() const = 0;
+    virtual std::string getDisplayColor() const = 0; // Método abstrato (puro)
+
+    std::string getId() const noexcept;
+    std::string getLabel() const noexcept;
 
 protected:
     std::string id_;

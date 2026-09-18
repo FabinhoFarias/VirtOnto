@@ -58,32 +58,32 @@ Vector3D& Vector3D::operator*=(const Vector3D& other) noexcept {
 
 
 // --- BLOCO DE TESTE TEMPORÁRIO ---
-int main() {
-    using namespace virtonto::model;
+// int main() {
+//     using namespace virtonto::model;
 
-    Vector3D v1{1.0f, 2.0f, 3.0f};
-    Vector3D v2{4.0f, 5.0f, 6.0f};
+//     Vector3D v1{1.0f, 2.0f, 3.0f};
+//     Vector3D v2{4.0f, 5.0f, 6.0f};
 
-    // Teste de Soma
-    Vector3D soma = v1 + v2;
-    assert(soma.x == 5.0f && soma.y == 7.0f && soma.z == 9.0f);
+//     // Teste de Soma
+//     Vector3D soma = v1 + v2;
+//     assert(soma.x == 5.0f && soma.y == 7.0f && soma.z == 9.0f);
 
-    // Teste de Multiplicação por Escalar
-    Vector3D mult = v1 * 2.0f;
-    assert(mult.x == 2.0f && mult.y == 4.0f && mult.z == 6.0f);
+//     // Teste de Multiplicação por Escalar
+//     Vector3D mult = v1 * 2.0f;
+//     assert(mult.x == 2.0f && mult.y == 4.0f && mult.z == 6.0f);
     
-    Vector3D enc = v1 += v2;
-    assert(enc.x == 5.0f && enc.y == 7.0f && enc.z == 9.0f);
+//     Vector3D enc = v1 += v2;
+//     assert(enc.x == 5.0f && enc.y == 7.0f && enc.z == 9.0f);
 
-    Vector3D encMult = v1 *= 2.0f;
-    assert(encMult.x == 10.0f && encMult.y == 14.0f && encMult.z == 18.0f);
+//     Vector3D encMult = v1 *= 2.0f;
+//     assert(encMult.x == 10.0f && encMult.y == 14.0f && encMult.z == 18.0f);
     
-    Vector3D encMult2 = soma *= soma;
-    assert(encMult2.x == 25.0f && encMult2.y == 49.0f && encMult2.z == 81.0f);
+//     Vector3D encMult2 = soma *= soma;
+//     assert(encMult2.x == 25.0f && encMult2.y == 49.0f && encMult2.z == 81.0f);
     
-    std::cout << "✅ Todos os testes do Vector3D passaram!" << std::endl;
-    return 0;
-}
+//     std::cout << "✅ Todos os testes do Vector3D passaram!" << std::endl;
+//     return 0;
+// }
 
 // Copia
 // g++ -std=c++17 CPP/src/model/Vector3D.cpp -ICPP/include -o test_vector && ./test_vector
