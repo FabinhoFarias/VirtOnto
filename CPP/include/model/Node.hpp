@@ -2,6 +2,7 @@
 
 #include "model/OntologyElement.hpp"
 #include "model/Vector3D.hpp"
+#include <string>
 
 namespace virtonto::model {
 
