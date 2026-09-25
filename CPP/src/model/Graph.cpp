@@ -49,7 +49,7 @@ void Graph::clear() noexcept {
 } // namespace virtonto::model
 
 
-// --- BLOCO DE TESTE TEMPORÁRIO ---
+/* --- BLOCO DE TESTE TEMPORÁRIO ---
 int main() {
     using namespace virtonto::model;
 
@@ -83,3 +83,6 @@ int main() {
     std::cout << "✅ Todos os testes da classe Graph passaram!" << std::endl;
     return 0;
 }
+*/
+
+//concluído
