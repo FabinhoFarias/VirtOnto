@@ -87,3 +87,14 @@ Vector3D& Vector3D::operator*=(const Vector3D& other) noexcept {
 
 // Copia
 // g++ -std=c++17 CPP/src/model/Vector3D.cpp -ICPP/include -o test_vector && ./test_vector
+
+
+
+
+
+
+
+
+
+
+//concluído
