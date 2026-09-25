@@ -72,3 +72,5 @@ std::string Node::getDisplayColor() const {
 // }
 
 // g++ -std=c++17 CPP/src/model/Node.cpp CPP/src/model/Vector3D.cpp CPP/src/model/OntologyElement.cpp -ICPP/include -o test_node && ./test_node
+
+//concluído
