@@ -19,3 +19,4 @@ std::string OntologyElement::getLabel() const noexcept {
 }
 
 } // namespace virtonto::model
+//concluída
