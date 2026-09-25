@@ -58,3 +58,5 @@ std::string Edge::getDisplayColor() const {
 
 
 // g++ -std=c++17 CPP/src/model/Edge.cpp CPP/src/model/OntologyElement.cpp -ICPP/include -o test_edge && ./test_edge
+
+//concluído
