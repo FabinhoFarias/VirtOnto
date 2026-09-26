@@ -5,7 +5,7 @@ namespace virtonto::algorithm {
 
 class ForceDirectedLayout3D : public ILayoutStrategy {
 public:
-    // Contrato lisinho com os defaults expostos
+
     static constexpr float REPULSION_DEFAULT = 500.0f;
     static constexpr float ATTRACTION_DEFAULT = 0.05f;
     static constexpr float DAMPING_DEFAULT = 0.85f;
