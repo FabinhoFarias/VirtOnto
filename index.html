@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>VirtOnto Spatial Engine - Universe 3D</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #05070f;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    #ui-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(10, 15, 30, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 255, 204, 0.2);
+      padding: 15px 20px;
+      border-radius: 10px;
+      color: #e0f7fc;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      z-index: 10;
+    }
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      color: #00ffcc;
+      text-transform: uppercase;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 10px;
+      box-shadow: 0 0 8px currentColor;
+    }
+    #tooltip {
+      position: absolute;
+      padding: 8px 12px;
+      background: rgba(5, 10, 20, 0.9);
+      border: 1px solid #00ffcc;
+      color: #ffffff;
+      border-radius: 4px;
+      pointer-events: none;
+      display: none;
+      font-size: 12px;
+      box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
+      z-index: 20;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+  <div id="ui-panel">
+    <h2>VirtOnto Spatial Engine</h2>
+    <div class="legend-item"><span class="dot" style="background:#00ffcc; color:#00ffcc;"></span> INDIVÍDUO</div>
+    <div class="legend-item"><span class="dot" style="background:#ffaa00; color:#ffaa00;"></span> CLASSE</div>
+    <div class="legend-item"><span class="dot" style="background:#0088ff; color:#0088ff;"></span> PROPRIEDADE</div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <script>
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x05070f, 0.005);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 20, 45);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Iluminação Sci-Fi
+    const ambientLight = new THREE.AmbientLight(0x1a2b4c, 2);
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0x00ffcc, 1.5, 100);
+    pointLight.position.set(0, 10, 10);
+    scene.add(pointLight);
+
+    // Mapeamento de Cores
+    const TYPE_COLORS = {
+      0: 0xffaa00, // Classe (Laranja Ouro)
+      1: 0x0088ff, // Propriedade (Azul Neon)
+      2: 0x00ffcc  // Indivíduo (Ciano/Verde Neon)
+    };
+
+    const nodeObjects = [];
+    const nodeMap = {};
+
+    // Carregar JSON do Motor C++
+    fetch('/renderable.json')
+      .then(res => res.json())
+      .then(graph => {
+        
+        // 1. RENDERIZAR NÓS (Esferas Luminosas Estilo Ponto de Rede)
+        const nodeGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+
+        graph.nodes.forEach(n => {
+          const colorHex = TYPE_COLORS[n.type] || 0xffffff;
+          
+          const material = new THREE.MeshPhongMaterial({
+            color: colorHex,
+            emissive: colorHex,
+            emissiveIntensity: 0.4,
+            shininess: 100
+          });
+
+          const mesh = new THREE.Mesh(nodeGeometry, material);
+          mesh.position.set(n.x, n.y, n.z);
+          mesh.userData = n;
+
+          scene.add(mesh);
+          nodeObjects.push(mesh);
+          nodeMap[n.id] = mesh;
+        });
+
+     // 2. RENDERIZAR ARESTAS COM DIREÇÃO (Origem -> Destino)
+        graph.edges.forEach(e => {
+          // Considerando a estrutura ajustada do teu JSON:
+          const srcNode = nodeMap[e.target]; // Origem
+          const tgtNode = nodeMap[e.label];  // Destino
+        
+          if (srcNode && tgtNode) {
+            const origin = srcNode.position.clone();
+            const destination = tgtNode.position.clone();
+          
+            // 1. Desenha a linha da aresta
+            const points = [origin, destination];
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+            const lineMat = new THREE.LineBasicMaterial({
+              color: 0x0088ff,
+              transparent: true,
+              opacity: 0.2,
+              blending: THREE.AdditiveBlending
+            });
+            const line = new THREE.Line(lineGeo, lineMat);
+            scene.add(line);
+          
+            // 2. Calcula vetor de direção e comprimento
+            const direction = new THREE.Vector3().subVectors(destination, origin);
+            const length = direction.length();
+            direction.normalize();
+          
+            // 3. Adiciona Seta Indicadora apontando para o Destino
+            // Posiciona a seta a 80% do caminho para não ficar escondida dentro do nó
+            const arrowPosition = origin.clone().add(direction.clone().multiplyScalar(length * 0.8));
+            
+            const arrowHelper = new THREE.ArrowHelper(
+              direction, 
+              arrowPosition, 
+              1.5,        // Comprimento da seta
+              0x00ffcc,   // Cor Ciano Brilhante para destaque
+              0.8,        // Largura da cabeça da seta
+              0.5         // Altura da cabeça da seta
+            );
+          
+            scene.add(arrowHelper);
+          }
+        });
+
+      });
+
+    // Raycasting para Tooltip ao passar o rato (Hover)
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const tooltip = document.getElementById('tooltip');
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(nodeObjects);
+
+      if (intersects.length > 0) {
+        const data = intersects[0].object.userData;
+        tooltip.style.display = 'block';
+        tooltip.style.left = e.clientX + 12 + 'px';
+        tooltip.style.top = e.clientY + 12 + 'px';
+        tooltip.innerHTML = `<strong>${data.label}</strong><br/><small>ID: ${data.id}</small>`;
+      } else {
+        tooltip.style.display = 'none';
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>

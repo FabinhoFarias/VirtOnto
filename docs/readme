@@ -1,0 +1,66 @@
+🛠️ Guia de Execução — VirtOnto Spatial Engine
+1. Pré-requisitos Necessários
+Garante que tens as seguintes ferramentas instaladas no sistema:
+
+Compilador C++ (C++17): MinGW (GCC/G++) ou MSVC (Visual Studio).
+
+CMake: Versão 3.20 ou superior.
+
+Python: 3.x (utilizado apenas para subir o servidor local HTTP).
+
+Navegador Web: Chrome, Edge ou Firefox.
+
+2. Estrutura de Pastas e Ficheiros de Origem
+A pasta raiz do projeto (VirtOnto/) deve conter rigorosamente a seguinte estrutura antes de criar ou gerar a build:
+
+Plaintext
+VirtOnto/
+├── CMakeLists.txt
+├── index.html
+├── mock_ontology.json
+├── ontology mock test.cpp
+└── CPP/
+    ├── include/       (ficheiros .hpp)
+    └── src/           (ficheiros .cpp do motor)
+Aviso Importante: Nenhum ficheiro .cpp ou de configuração de origem deve ser colocado manualmente na pasta build/. O CMake tratará de organizar os executáveis e os ficheiros estáticos na saída automaticamente.
+
+Se já tens o CMake instalado no sistema, podes avançar para o Passo seguinte.
+
+Caso tenhas apenas descompactado a pasta binária do CMake (.zip / .tar.gz), abre o terminal dentro da pasta bin do CMake e adiciona-o temporariamente ao teu ambiente:
+
+Windows (PowerShell):
+$env:PATH += ";$PWD"
+
+
+Linux / macOS (Terminal):
+export PATH="$PWD:$PATH"
+(Depois de rodar o comando acima, navega de volta para a pasta raiz do projeto VirtOnto/).
+
+
+3. Cria pasta de construção
+mkdir build
+cd build
+
+4. Configurar o Projeto com o CMake
+Este comando lê o CMakeLists.txt da raiz (..) e copia automaticamente o index.html e o mock_ontology.json para dentro do build/.
+
+PowerShell
+# Se usas MinGW:
+cmake .. -G "MinGW Makefiles"
+
+# Caso utilizador de Visual Studio/MSVC:
+# cmake ..
+
+5. Compilar o Motor e o Teste C++
+cmake --build .
+
+6. Executar o Processamento Espacial da Ontologia
+Este executável lê o mock_ontology.json, aplica o algoritmo espacial e gera o ficheiro de cena renderable.json dentro da pasta build/.
+.\ontology_mock_test.exe
+
+7. Iniciar o Servidor Web Local
+Garante que ficas posicionado dentro da pasta build ao rodar este comando.
+python -m http.server 8000
+
+8. Visualização no Navegador e enjoiar
+Abre o navegador em: http://localhost:8000

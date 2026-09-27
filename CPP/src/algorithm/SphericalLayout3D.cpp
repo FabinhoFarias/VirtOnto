@@ -1,4 +1,4 @@
-#include "algorithms/SphericalLayout3D.hpp"
+#include "algorithm/SphericalLayout3D.hpp"
 #include "model/Node.hpp"
 #include <vector>
 

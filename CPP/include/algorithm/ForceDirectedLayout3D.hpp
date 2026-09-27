@@ -1,5 +1,5 @@
 #pragma once
-#include "algorithms/ILayoutStrategy.hpp"
+#include "algorithm/ILayoutStrategy.hpp"
 
 namespace virtonto::algorithm {
 

@@ -1,4 +1,4 @@
-#include "algorithms/HierarchicalLayout3D.hpp"
+#include "algorithm/HierarchicalLayout3D.hpp"
 #include "model/Node.hpp"
 #include <vector>
 #include <unordered_map>
@@ -24,7 +24,7 @@ void HierarchicalLayout3D::applyLayout(model::Graph& graph, int iterations) {
             return;
         }
         for (size_t i = 0; i < nodes.size(); ++i) {
-            float angle = (2.0f * M_PI * i) / nodes.size();
+            float angle = (2.0f * M_PI_F * i) / nodes.size();
             nodes[i]->setPosition({
                 std::cos(angle) * radius,
                 y,

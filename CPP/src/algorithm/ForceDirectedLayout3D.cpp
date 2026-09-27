@@ -1,4 +1,4 @@
-#include "algorithms/ForceDirectedLayout3D.hpp"
+#include "algorithm/ForceDirectedLayout3D.hpp"
 #include "model/Edge.hpp"
 #include "model/Node.hpp"
 #include <cmath>
