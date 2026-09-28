@@ -22,26 +22,27 @@ VirtOnto/
 └── CPP/
     ├── include/       (ficheiros .hpp)
     └── src/           (ficheiros .cpp do motor)
-Aviso Importante: Nenhum ficheiro .cpp ou de configuração de origem deve ser colocado manualmente na pasta build/. O CMake tratará de organizar os executáveis e os ficheiros estáticos na saída automaticamente.
+Aviso Importante: Nada deve ser adicionado na pasta build de forma não automática!
+Obs: Se já tens o CMake instalado no sistema, podes avançar para o Passo seguinte.
 
-Se já tens o CMake instalado no sistema, podes avançar para o Passo seguinte.
+3. instalação do CMake
+Windows (PowerShell) em computadores com restrição de Admin:
+Baixe o binario disponivel em https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-windows-x86_64.zip
+Extrai o ficheiro .zip completo para dentro da raiz do projeto (VirtOnto/).
 
-Caso tenhas apenas descompactado a pasta binária do CMake (.zip / .tar.gz), abre o terminal dentro da pasta bin do CMake e adiciona-o temporariamente ao teu ambiente:
-
-Windows (PowerShell):
-$env:PATH += ";$PWD"
-
+Abre o terminal (PowerShell) na pasta raiz do projeto e adiciona temporariamente a pasta do CMake ao teu ambiente com o seguinte comando:
+$env:PATH += ";$PWD\cmake-4.4.3-windows-x86_64\bin"
+Valida se a instalação temporária funcionou executando o comando:
+cmake --version
 
 Linux / macOS (Terminal):
-export PATH="$PWD:$PATH"
-(Depois de rodar o comando acima, navega de volta para a pasta raiz do projeto VirtOnto/).
+sudo apt update && sudo apt install -y cmake
 
-
-3. Cria pasta de construção
+4. Cria pasta de construção (na pasta VirtOnto).
 mkdir build
 cd build
 
-4. Configurar o Projeto com o CMake
+5. Configurar o Projeto com o CMake
 Este comando lê o CMakeLists.txt da raiz (..) e copia automaticamente o index.html e o mock_ontology.json para dentro do build/.
 
 PowerShell
@@ -51,16 +52,16 @@ cmake .. -G "MinGW Makefiles"
 # Caso utilizador de Visual Studio/MSVC:
 # cmake ..
 
-5. Compilar o Motor e o Teste C++
+6. Compilar o Motor e o Teste C++
 cmake --build .
 
-6. Executar o Processamento Espacial da Ontologia
+7. Executar o Processamento Espacial da Ontologia
 Este executável lê o mock_ontology.json, aplica o algoritmo espacial e gera o ficheiro de cena renderable.json dentro da pasta build/.
 .\ontology_mock_test.exe
 
-7. Iniciar o Servidor Web Local
+8. Iniciar o Servidor Web Local
 Garante que ficas posicionado dentro da pasta build ao rodar este comando.
 python -m http.server 8000
 
-8. Visualização no Navegador e enjoiar
+9. Visualização no Navegador e enjoiar
 Abre o navegador em: http://localhost:8000
