@@ -57,7 +57,8 @@ cmake --build .
 
 7. Executar o Processamento Espacial da Ontologia
 Este executável lê o mock_ontology.json, aplica o algoritmo espacial e gera o ficheiro de cena renderable.json dentro da pasta build/.
-.\ontology_mock_test.exe
+.\ontology_mock_test.exe - Windows
+./ontology_mock_test - Linux
 
 8. Iniciar o Servidor Web Local
 Garante que ficas posicionado dentro da pasta build ao rodar este comando.
