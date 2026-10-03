@@ -49,7 +49,7 @@ PowerShell
 # Se usas MinGW:
 cmake .. -G "MinGW Makefiles"
 
-# Caso utilizador de Visual Studio/MSVC:
+# Caso utilizador de Visual Studio/MSVC/Codespace:
 # cmake ..
 
 6. Compilar o Motor e o Teste C++
@@ -64,5 +64,8 @@ Este executável lê o mock_ontology.json, aplica o algoritmo espacial e gera o 
 Garante que ficas posicionado dentro da pasta build ao rodar este comando.
 python -m http.server 8000
 
-9. Visualização no Navegador e enjoiar
+9. Visualização no Navegador
 Abre o navegador em: http://localhost:8000
+
+10. Quando quiser encerrar o grafo, limpar e destruir a pasta de construção direto dela.
+cmake --build . --target clean-build

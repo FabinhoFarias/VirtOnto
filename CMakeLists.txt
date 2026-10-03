@@ -46,3 +46,9 @@ configure_file(
     "${CMAKE_BINARY_DIR}/mock_ontology.json"
     COPYONLY
 )
+
+# 4. Alvo customizado para apagar o diretório de build assim que o comando de encerramento do grafo for executado
+add_custom_target(clean-build
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}
+    COMMENT "Limpando e removendo o diretório build..."
+)

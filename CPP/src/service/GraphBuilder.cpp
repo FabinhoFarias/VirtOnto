@@ -70,9 +70,9 @@ model::Graph GraphBuilder::buildFromJSON(const std::string& rawJson) {
             std::string tgt = std::regex_search(obj, m, tgtR) ? m[1].str() : "";
             std::string label = std::regex_search(obj, m, labelR) ? m[1].str() : "";
             if (id.empty() || src.empty() || tgt.empty()) continue;
-
-            // Ordem corrigida: (id, label, source, target)
-            auto edge = std::make_shared<model::Edge>(id, label, src, tgt);
+        
+            //(id, source, target, label) é a ordem de parseamento!
+            auto edge = std::make_shared<model::Edge>(id, src, tgt, label);
             graph.addEdge(edge);
         }
     };
