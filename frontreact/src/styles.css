@@ -1,0 +1,81 @@
+:root {
+  --bg: #17212f;
+  --surface: #1f2b3d;
+  --line: #2f3e55;
+  --text: #e4e9f1;
+  --muted: #8b99ae;
+  --warning: #f2b15a;
+  --error: #ff8a80;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.subtitle { margin: 0.25rem 0 1.5rem; color: var(--muted); }
+
+.status { color: var(--muted); }
+.status.error { color: var(--error); }
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 2rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.summary-total { margin: 0; font-size: 1.125rem; }
+.summary-types { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 0; padding: 0; list-style: none; color: var(--muted); }
+.summary-warning { flex-basis: 100%; margin: 0; color: var(--warning); }
+
+.swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1.5rem;
+}
+@media (max-width: 860px) {
+  .panels { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  min-width: 0;
+}
+.panel h2 { margin: 0 0 0.75rem; font-size: 1.1rem; }
+
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.925rem; }
+th, td { padding: 0.45rem 0.6rem; text-align: left; white-space: nowrap; }
+th { color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--line); }
+tbody tr + tr td { border-top: 1px solid rgba(47, 62, 85, 0.5); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.relation { color: var(--muted); font-style: italic; }
+tr.broken td { color: var(--warning); }
