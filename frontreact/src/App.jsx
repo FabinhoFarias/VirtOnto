@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { loadGraph } from './services/graphLoader.js';
 import DataPanel from './components/DataPanel.jsx';
+import GraphScene from './components/scene/GraphScene.jsx';
 
 // import.meta.env.BASE_URL garante que o caminho funcione também depois do deploy.
 const SAMPLE_GRAPH_URL = `${import.meta.env.BASE_URL}data/sample-graph.json`;
@@ -35,7 +36,7 @@ export default function App() {
           </p>
         )}
         {!error && !graph && <p className="status">Carregando grafo…</p>}
-        {graph && <p className="status">A cena 3D vai aparecer aqui.</p>}
+        {graph && <GraphScene nodes={graph.nodes} />}
         {graph && showData && <DataPanel graph={graph} />}
       </main>
     </div>
