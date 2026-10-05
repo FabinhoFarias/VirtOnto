@@ -1,13 +1,10 @@
-import { getNodeType } from './constants/nodeTypes.js';
+import { loadGraph } from './services/graphLoader.js';
+
+// Teste provisório: carrega o grafo e mostra o resultado no console (F12).
+loadGraph('/data/sample-graph.json')
+  .then((graph) => console.log('Grafo carregado:', graph))
+  .catch((error) => console.error('Erro:', error.message));
 
 export default function App() {
-  return (
-    <div>
-      <h1>VirtOnto funcionando</h1>
-      <p>Tipo 0: {getNodeType(0).label}</p>
-      <p>Tipo 1: {getNodeType(1).label}</p>
-      <p>Tipo 2: {getNodeType(2).label}</p>
-      <p>Tipo 7: {getNodeType(7).label}</p>
-    </div>
-  );
+  return <h1>VirtOnto funcionando. Abra o console (F12).</h1>;
 }
