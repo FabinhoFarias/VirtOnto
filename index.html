@@ -1,737 +1,394 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>VirtOnto Spatial Engine - Universe 3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador de Grafos 3D - Layouts Automáticos</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
-      background-color: #05070f;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #050505;
+      color: #ffffff;
     }
-    #ui-panel {
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Interface Glassmorphism */
+    .ui-panel {
       position: absolute;
       top: 20px;
       left: 20px;
-      background: rgba(10, 15, 30, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(0, 255, 204, 0.2);
-      padding: 15px 20px;
-      border-radius: 10px;
-      color: #e0f7fc;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-      z-index: 10;
+      background: rgba(20, 20, 35, 0.65);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: 16px;
       width: 280px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      z-index: 10;
     }
-    h2 {
-      margin: 0 0 10px 0;
-      font-size: 16px;
-      letter-spacing: 1.5px;
+
+    h3 {
+      margin-top: 0;
+      font-size: 1.1rem;
       color: #00ffcc;
-      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
     }
+
+    .layout-btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      background: rgba(0, 255, 204, 0.15);
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #00ffcc;
+      color: #000;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+    }
+
+    button.active {
+      background: #00ffcc;
+      color: #111;
+    }
+
+    /* Legend */
+    .legend {
+      margin-top: 15px;
+      font-size: 0.85rem;
+    }
+
     .legend-item {
       display: flex;
       align-items: center;
       margin-bottom: 6px;
-      font-size: 12px;
     }
+
     .dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      margin-right: 10px;
-      box-shadow: 0 0 8px currentColor;
+      margin-right: 8px;
     }
+
     #tooltip {
       position: absolute;
-      padding: 8px 12px;
-      background: rgba(5, 10, 20, 0.9);
-      border: 1px solid #00ffcc;
-      color: #ffffff;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 4px 8px;
       border-radius: 4px;
+      font-size: 0.8rem;
       pointer-events: none;
       display: none;
-      font-size: 12px;
-      box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
       z-index: 20;
-    }
-
-    .crud-section {
-      margin-top: 15px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(0, 255, 204, 0.2);
-    }
-    .crud-section h3 {
-      margin: 0 0 8px 0;
-      font-size: 12px;
-      color: #00ffcc;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .form-group {
-      margin-bottom: 8px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 11px;
-      color: #a0c0d0;
-      margin-bottom: 2px;
-    }
-    .form-group input[type="text"], 
-    .form-group input[type="number"], 
-    .form-group select {
-      width: 100%;
-      box-sizing: border-box;
-      background: #0a0f1e;
-      border: 1px solid rgba(0, 255, 204, 0.4);
-      color: #00ffcc;
-      padding: 6px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-    .form-group select option {
-      background: #0a0f1e;
-      color: #ffffff;
-    }
-    .form-group select optgroup {
-      background: #050a14;
-      color: #00ffcc;
-      font-weight: bold;
-    }
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: #00ffcc;
-    }
-    .pos-mode-selector {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 8px;
-      font-size: 11px;
-      color: #a0c0d0;
-    }
-    .pos-mode-selector label {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 6px;
-      background: rgba(0, 255, 204, 0.15);
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-      margin-top: 4px;
-    }
-    .btn:hover {
-      background: rgba(0, 255, 204, 0.4);
-      box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
-    }
-    .btn-danger {
-      border-color: #ff4444;
-      color: #ff4444;
-      background: rgba(255, 68, 68, 0.15);
-    }
-    .btn-danger:hover {
-      background: rgba(255, 68, 68, 0.4);
-      box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
-    }
-    .btn-secondary {
-      border-color: #ffaa00;
-      color: #ffaa00;
-      background: rgba(255, 170, 0, 0.15);
-    }
-    .btn-secondary:hover {
-      background: rgba(255, 170, 0, 0.4);
-      box-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
-    }
-    .coord-grid {
-      display: flex;
-      gap: 4px;
-    }
-    .coord-grid input {
-      width: 33.3%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
   </style>
+  
+  <!-- Three.js e OrbitControls via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
-  <div id="ui-panel">
-    <h2>VirtOnto Spatial Engine</h2>
-    <div class="legend-item"><span class="dot" style="background:#00ffcc; color:#00ffcc;"></span> INDIVÍDUO / INSTÂNCIA</div>
-    <div class="legend-item"><span class="dot" style="background:#ffaa00; color:#ffaa00;"></span> CLASSE</div>
-    <div class="legend-item"><span class="dot" style="background:#0088ff; color:#0088ff;"></span> PROPRIEDADE / ATRIBUTO</div>
+  <div id="canvas-container"></div>
+  <div id="tooltip"></div>
 
-    <!-- PAINEL DE CONTROLE CRUD -->
-    <!-- 1. CREATE NODE -->
-    <div class="crud-section">
-      <h3>Criar Nó (Create)</h3>
-      <div class="form-group">
-        <label>Nome do Conceito / Classe / Objeto</label>
-        <input type="text" id="add-id" placeholder="ex: Pessoa, Carro, myCar">
-      </div>
-      <div class="form-group">
-        <label>Tipo Arquétipo</label>
-        <select id="add-type">
-          <option value="0">CLASSE</option>
-          <option value="1">PROPRIEDADE</option>
-          <option value="2" selected>INDIVÍDUO / INSTÂNCIA</option>
-        </select>
-      </div>
+  <div class="ui-panel">
+    <h3>Layouts de Grafo</h3>
+    <div class="layout-btn-group">
+      <button onclick="applyLayout('force')">Força (3D)</button>
+      <button onclick="applyLayout('sphere')">Esférico</button>
+      <button onclick="applyLayout('grid')">Grade 3D</button>
 
-      <!-- SELEÇÃO DE MODO DE POSICIONAMENTO -->
-      <div class="form-group">
-        <label>Posicionamento Espacial</label>
-        <div class="pos-mode-selector">
-          <label><input type="radio" name="pos-mode" value="coord" checked> Coordenadas (X,Y,Z)</label>
-          <label><input type="radio" name="pos-mode" value="between"> Entre 2 Nós</label>
-        </div>
-      </div>
-
-      <!-- OPÇÃO A: COORDENADAS MANUAIS -->
-      <div id="mode-coord-container" class="form-group">
-        <label>Posição (X, Y, Z)</label>
-        <div class="coord-grid">
-          <input type="number" id="add-x" value="0" step="0.1">
-          <input type="number" id="add-y" value="0" step="0.1">
-          <input type="number" id="add-z" value="0" step="0.1">
-        </div>
-      </div>
-
-      <!-- OPÇÃO B: SELECIONAR 2 PONTOS EXISTENTES -->
-      <div id="mode-between-container" style="display:none;">
-        <div class="form-group">
-          <label>Ponto A (Primeiro Nó)</label>
-          <select id="pos-node-a">
-            <option value="">-- Selecione o Nó A --</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Ponto B (Segundo Nó)</label>
-          <select id="pos-node-b">
-            <option value="">-- Selecione o Nó B --</option>
-          </select>
-        </div>
-      </div>
-
-      <button class="btn" id="btn-add-node">Adicionar Nó</button>
     </div>
 
-    <!-- 2. CREATE EDGE -->
-    <div class="crud-section">
-      <h3>Criar Relação (Create)</h3>
-      <div class="form-group">
-        <label>Origem (Subject)</label>
-        <select id="edge-src">
-          <option value="">-- Selecione o Nó --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Destino (Object)</label>
-        <select id="edge-tgt">
-          <option value="">-- Selecione o Nó --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Relação (Predicate)</label>
-        <select id="edge-label-select">
-          <optgroup label="Ontologia / OWL / RDF">
-            <option value="subClassOf">subClassOf (Subclasse de)</option>
-            <option value="type">rdf:type (Instância de)</option>
-            <option value="equivalentClass">equivalentClass (Equivalente a)</option>
-            <option value="disjointWith">disjointWith (Disjunto de)</option>
-            <option value="sameAs">owl:sameAs (Mesmo Indivíduo)</option>
-          </optgroup>
-          <optgroup label="POO (Programação Orientada a Objetos)">
-            <option value="extends">extends (Herança)</option>
-            <option value="implements">implements (Interface)</option>
-            <option value="hasA">hasA (Composição / Agregação)</option>
-            <option value="uses">uses (Dependência)</option>
-            <option value="associatesWith">associatesWith (Associação)</option>
-          </optgroup>
-          <optgroup label="Outro">
-            <option value="__CUSTOM__">+ Digitar Outra...</option>
-          </optgroup>
-        </select>
-      </div>
-      <div class="form-group" id="custom-label-container" style="display:none;">
-        <label>Especifique a Relação</label>
-        <input type="text" id="edge-label-custom" placeholder="ex: manages, owns">
-      </div>
-      <button class="btn" id="btn-add-edge">Conectar Nós</button>
-    </div>
-
-    <!-- 3. UPDATE & DELETE NODE -->
-    <div class="crud-section" id="selection-panel" style="display:none;">
-      <h3 style="color:#ffaa00;">Nó Selecionado</h3>
-      <div class="form-group">
-        <label>Nome / Conceito</label>
-        <input type="text" id="edit-label">
-      </div>
-      <div class="form-group">
-        <label>Novo Tipo</label>
-        <select id="edit-type">
-          <option value="0">CLASSE</option>
-          <option value="1">PROPRIEDADE</option>
-          <option value="2">INDIVÍDUO / INSTÂNCIA</option>
-        </select>
-      </div>
-      <button class="btn btn-secondary" id="btn-update-node">Atualizar Nó</button>
-      <button class="btn btn-danger" id="btn-delete-node">Deletar Nó</button>
+    <div class="legend">
+      <strong>Legenda de Tipos:</strong>
+      <div class="legend-item"><span class="dot" style="background:#ffaa00;"></span> Classe</div>
+      <div class="legend-item"><span class="dot" style="background:#0088ff;"></span> Propriedade</div>
+      <div class="legend-item"><span class="dot" style="background:#00ffcc;"></span> Instância</div>
     </div>
   </div>
 
-  <div id="tooltip"></div>
-
   <script>
+    // --- Configuração Básica da Cena 3D ---
+    const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x05070f, 0.005);
+    scene.fog = new THREE.FogExp2(0x050505, 0.015);
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 20, 45);
+    camera.position.set(20, 20, 30);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    document.body.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    const ambientLight = new THREE.AmbientLight(0x1a2b4c, 2);
+    // Iluminação
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0x00ffcc, 1.5, 100);
-    pointLight.position.set(0, 10, 10);
+    const pointLight = new THREE.PointLight(0xffffff, 0.8);
+    pointLight.position.set(50, 50, 50);
     scene.add(pointLight);
 
-    const TYPE_COLORS = { 0: 0xffaa00, 1: 0x0088ff, 2: 0x00ffcc };
+    const gridHelper = new THREE.GridHelper(60, 60, 0x333333, 0x111111);
+    scene.add(gridHelper);
 
-    let graphData = { nodes: [], edges: [] };
+    // --- Estrutura de Dados do Grafo ---
+    const nodes = [
+      { id: 1, name: "Pessoa", type: "class", color: 0xffaa00, pos: new THREE.Vector3() },
+      { id: 2, name: "Estudante", type: "class", color: 0xffaa00, pos: new THREE.Vector3() },
+      { id: 3, name: "Professor", type: "class", color: 0xffaa00, pos: new THREE.Vector3() },
+      { id: 4, name: "nome", type: "property", color: 0x0088ff, pos: new THREE.Vector3() },
+      { id: 5, name: "idade", type: "property", color: 0x0088ff, pos: new THREE.Vector3() },
+      { id: 6, name: "João", type: "instance", color: 0x00ffcc, pos: new THREE.Vector3() },
+      { id: 7, name: "Maria", type: "instance", color: 0x00ffcc, pos: new THREE.Vector3() },
+      { id: 8, name: "Curso", type: "class", color: 0xffaa00, pos: new THREE.Vector3() }
+    ];
+
+    const links = [
+      { source: 2, target: 1 }, // Estudante subClassOf Pessoa
+      { source: 3, target: 1 }, // Professor subClassOf Pessoa
+      { source: 1, target: 4 }, // Pessoa hasProperty nome
+      { source: 1, target: 5 }, // Pessoa hasProperty idade
+      { source: 6, target: 2 }, // João type Estudante
+      { source: 7, target: 3 }, // Maria type Professor
+      { source: 2, target: 8 }  // Estudante matriculado Curso
+    ];
+
     const nodeObjects = [];
-    const nodeMap = {};
-    const edgeObjects = []; 
+    const linkObjects = [];
+    let isPhysicsActive = false;
 
-    let selectedNodeMesh = null;
-    const nodeGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+    // --- Geometrias e Materiais ---
+    const sphereGeo = new THREE.SphereGeometry(1, 32, 32);
 
-    // PLANO MATEMÁTICO INVISÍVEL EM Z = 0 PARA CAPTURAR COORDENADAS NO ESPAÇO VAZIO
-    const mathPlaneZZero = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-    const planeIntersectionPoint = new THREE.Vector3();
-
-    function cleanId(id) {
-      if (id === null || id === undefined) return "";
-      return String(id).trim();
-    }
-
-    // Controle da interface para alternar modos de posicionamento
-    document.querySelectorAll('input[name="pos-mode"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        const mode = e.target.value;
-        const coordContainer = document.getElementById('mode-coord-container');
-        const betweenContainer = document.getElementById('mode-between-container');
-
-        if (mode === 'coord') {
-          coordContainer.style.display = 'block';
-          betweenContainer.style.display = 'none';
-        } else {
-          coordContainer.style.display = 'none';
-          betweenContainer.style.display = 'block';
-        }
-      });
-    });
-
-    // Exibe alternância para entrada customizada de relação
-    document.getElementById('edge-label-select').addEventListener('change', (e) => {
-      const customContainer = document.getElementById('custom-label-container');
-      if (e.target.value === '__CUSTOM__') {
-        customContainer.style.display = 'block';
-      } else {
-        customContainer.style.display = 'none';
-      }
-    });
-
-    // Facade: Atualiza todos os dropdowns apenas com os rótulos/nomes amigáveis
-    function updateNodeDropdowns() {
-      const srcSelect = document.getElementById('edge-src');
-      const tgtSelect = document.getElementById('edge-tgt');
-      const posASelect = document.getElementById('pos-node-a');
-      const posBSelect = document.getElementById('pos-node-b');
-
-      if (!srcSelect || !tgtSelect || !posASelect || !posBSelect) return;
-      
-      const currentSrc = srcSelect.value;
-      const currentTgt = tgtSelect.value;
-      const currentPosA = posASelect.value;
-      const currentPosB = posBSelect.value;
-
-      srcSelect.innerHTML = '<option value="">-- Selecione o Nó --</option>';
-      tgtSelect.innerHTML = '<option value="">-- Selecione o Nó --</option>';
-      posASelect.innerHTML = '<option value="">-- Selecione o Nó A --</option>';
-      posBSelect.innerHTML = '<option value="">-- Selecione o Nó B --</option>';
-
-      const sortedKeys = Object.keys(nodeMap).sort((a, b) => {
-        const labelA = (nodeMap[a].userData.label || "").toLowerCase();
-        const labelB = (nodeMap[b].userData.label || "").toLowerCase();
-        return labelA.localeCompare(labelB);
-      });
-
-      sortedKeys.forEach(id => {
-        const mesh = nodeMap[id];
-        const displayLabel = mesh.userData.label || id;
-
-        const createOpt = () => {
-          const opt = document.createElement('option');
-          opt.value = id;
-          opt.textContent = displayLabel;
-          return opt;
-        };
-
-        srcSelect.appendChild(createOpt());
-        tgtSelect.appendChild(createOpt());
-        posASelect.appendChild(createOpt());
-        posBSelect.appendChild(createOpt());
-      });
-
-      srcSelect.value = currentSrc;
-      tgtSelect.value = currentTgt;
-      posASelect.value = currentPosA;
-      posBSelect.value = currentPosB;
-    }
-
-    function renderNode(n) {
-      const id = cleanId(n.id);
-      if (!id) return null;
-
-      if (nodeMap[id]) return nodeMap[id];
-
-      // Mapeamento amigável do Facade
-      const displayLabel = n.label || n.name || n.title || id;
-
-      const colorHex = TYPE_COLORS[n.type] !== undefined ? TYPE_COLORS[n.type] : 0xffffff;
-      
-      const material = new THREE.MeshPhongMaterial({
-        color: colorHex,
-        emissive: colorHex,
-        emissiveIntensity: 0.4,
-        shininess: 100
-      });
-
-      const mesh = new THREE.Mesh(nodeGeometry, material);
-      mesh.position.set(n.x || 0, n.y || 0, n.z || 0);
-      
-      mesh.userData = {
-        id: id,
-        label: displayLabel,
-        type: n.type !== undefined ? n.type : 2,
-        x: n.x || 0,
-        y: n.y || 0,
-        z: n.z || 0
-      };
-
+    // Criação Visual dos Nós e Conexões
+    nodes.forEach(node => {
+      const mat = new THREE.MeshPhongMaterial({ color: node.color, shininess: 100 });
+      const mesh = new THREE.Mesh(sphereGeo, mat);
+      mesh.userData = node;
       scene.add(mesh);
       nodeObjects.push(mesh);
-      nodeMap[id] = mesh;
+    });
 
-      updateNodeDropdowns();
-      return mesh;
-    }
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x555555, transparent: true, opacity: 0.6 });
 
-    function renderEdge(e) {
-      const srcId = cleanId(e.source || e.src || e.sourceId);
-      const tgtId = cleanId(e.target || e.tgt || e.targetId);
-      const relationLabel = e.label || e.relation || "subClassOf";
-
-      if (!srcId || !tgtId) return false;
-
-      if (!nodeMap[srcId]) {
-        renderNode({ id: srcId, label: srcId, type: 2, x: 0, y: 0, z: 0 });
-      }
-      if (!nodeMap[tgtId]) {
-        renderNode({ id: tgtId, label: tgtId, type: 2, x: 5, y: 0, z: 0 });
-      }
-
-      const srcNode = nodeMap[srcId];
-      const tgtNode = nodeMap[tgtId];
-    
-      const origin = srcNode.position.clone();
-      const destination = tgtNode.position.clone();
-    
-      const points = [origin, destination];
-      const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-      const lineMat = new THREE.LineBasicMaterial({
-        color: 0x0088ff,
-        transparent: true,
-        opacity: 0.25,
-        blending: THREE.AdditiveBlending
-      });
-      const line = new THREE.Line(lineGeo, lineMat);
+    links.forEach(link => {
+      const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+      const line = new THREE.Line(geometry, lineMaterial);
+      line.userData = link;
       scene.add(line);
-    
-      const direction = new THREE.Vector3().subVectors(destination, origin);
-      const length = direction.length();
-      direction.normalize();
-    
-      const arrowPosition = origin.clone().add(direction.clone().multiplyScalar(length * 0.8));
-      
-      const arrowHelper = new THREE.ArrowHelper(
-        direction, 
-        arrowPosition, 
-        1.5,
-        0x00ffcc,
-        0.8,
-        0.5
-      );
-    
-      scene.add(arrowHelper);
+      linkObjects.push(line);
+    });
 
-      const edgeObj = { data: e, line: line, arrow: arrowHelper, sourceId: srcId, targetId: tgtId, label: relationLabel };
-      edgeObjects.push(edgeObj);
-      return true;
+    // --- Algoritmos de Layout ---
+
+    function applyLayout(type) {
+      isPhysicsActive = false; // Interrompe física se trocar para layout estático
+
+      switch (type) {
+        case 'sphere':
+          // Distribuição de Fibonacci sobre uma Esfera 3D
+          const phi = Math.PI * (3 - Math.sqrt(5)); // Ângulo de ouro
+          const radius = 15;
+          nodes.forEach((node, i) => {
+            const y = 1 - (i / (nodes.length - 1)) * 2;
+            const r = Math.sqrt(1 - y * y) * radius;
+            const theta = phi * i;
+
+            const targetPos = new THREE.Vector3(
+              Math.cos(theta) * r,
+              y * radius,
+              Math.sin(theta) * r
+            );
+            animateToPosition(nodeObjects[i], targetPos);
+          });
+          break;
+
+        case 'grid':
+          // Layout em Grade Tridimensional 3D
+          const side = Math.ceil(Math.cbrt(nodes.length));
+          const spacing = 8;
+          const offset = ((side - 1) * spacing) / 2;
+
+          nodes.forEach((node, i) => {
+            const x = (i % side) * spacing - offset;
+            const y = (Math.floor(i / side) % side) * spacing - offset;
+            const z = Math.floor(i / (side * side)) * spacing - offset;
+
+            animateToPosition(nodeObjects[i], new THREE.Vector3(x, y, z));
+          });
+          break;
+
+        case 'force':
+          // Ativa a Simulação de Força 3D contínua
+          // Adiciona pequenas variações aleatórias iniciais para quebrar simetrias
+          nodeObjects.forEach(obj => {
+            obj.position.add(new THREE.Vector3(
+              (Math.random() - 0.5) * 2,
+              (Math.random() - 0.5) * 2,
+              (Math.random() - 0.5) * 2
+            ));
+          });
+          isPhysicsActive = true;
+          break;
+      }
     }
 
-    fetch('/renderable.json')
-      .then(res => res.json())
-      .then(graph => {
-        graphData = graph;
-        if (graph.nodes && Array.isArray(graph.nodes)) {
-          graph.nodes.forEach(n => renderNode(n));
+    // Animação suave para layouts estáticos (Interpolação/Lerp)
+    function animateToPosition(mesh, targetPos) {
+      const startPos = mesh.position.clone();
+      let startTime = null;
+      const duration = 1000; // 1 segundo
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        
+        // Função de Easing: EaseInOutCubic
+        const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        mesh.position.lerpVectors(startPos, targetPos, ease);
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
         }
-        if (graph.edges && Array.isArray(graph.edges)) {
-          graph.edges.forEach(e => renderEdge(e));
-        }
-        updateNodeDropdowns();
-      })
-      .catch(err => {
-        console.log("Aguardando inserção manual de nós.");
-        updateNodeDropdowns();
+      }
+      requestAnimationFrame(step);
+    }
+
+    // --- Motor de Física 3D (Force-Directed Graph) ---
+    function updatePhysics() {
+      if (!isPhysicsActive) return;
+
+      const repulsionStrength = 120;
+      const springLength = 8;
+      const springStrength = 0.05;
+      const damping = 0.85;
+
+      // Reset de forças acumuladas
+      nodes.forEach(node => {
+        if (!node.velocity) node.velocity = new THREE.Vector3();
+        node.force = new THREE.Vector3();
       });
 
-    // CRIAÇÃO DO NÓ (SUPORTA COORDENADAS OU INTERPOLAÇÃO ENTRE 2 PONTOS)
-    document.getElementById('btn-add-node').addEventListener('click', () => {
-      const nameInput = document.getElementById('add-id').value.trim();
-      if (!nameInput) {
-        alert("Por favor, digite o nome do nó!");
-        return;
-      }
+      // 1. Repulsão de Coulomb entre todos os nós (N^2)
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const posA = nodeObjects[i].position;
+          const posB = nodeObjects[j].position;
 
-      const id = `Node_${Date.now()}`;
-      const type = parseInt(document.getElementById('add-type').value);
-      const posMode = document.querySelector('input[name="pos-mode"]:checked').value;
-
-      let x = 0, y = 0, z = 0;
-
-      if (posMode === 'coord') {
-        x = parseFloat(document.getElementById('add-x').value) || 0;
-        y = parseFloat(document.getElementById('add-y').value) || 0;
-        z = parseFloat(document.getElementById('add-z').value) || 0;
-      } else {
-        const nodeAId = document.getElementById('pos-node-a').value;
-        const nodeBId = document.getElementById('pos-node-b').value;
-
-        if (!nodeAId || !nodeBId) {
-          alert("Selecione dois nós válidos para posicionar o novo nó entre eles!");
-          return;
-        }
-
-        if (nodeAId === nodeBId) {
-          alert("Escolha dois nós diferentes para calcular a posição média.");
-          return;
-        }
-
-        const meshA = nodeMap[nodeAId];
-        const meshB = nodeMap[nodeBId];
-
-        // Cálculo da posição central via .lerp()
-        const midPos = meshA.position.clone().lerp(meshB.position, 0.5);
-        x = midPos.x;
-        y = midPos.y;
-        z = midPos.z;
-      }
-
-      const newNode = { id: id, label: nameInput, type: type, x: x, y: y, z: z };
-      renderNode(newNode);
-      document.getElementById('add-id').value = '';
-    });
-
-    document.getElementById('btn-add-edge').addEventListener('click', () => {
-      const src = cleanId(document.getElementById('edge-src').value);
-      const tgt = cleanId(document.getElementById('edge-tgt').value);
-      
-      const selectVal = document.getElementById('edge-label-select').value;
-      let label = selectVal;
-
-      if (selectVal === '__CUSTOM__') {
-        label = document.getElementById('edge-label-custom').value.trim();
-      }
-
-      if (!src || !tgt) {
-        alert("Selecione os dois nós para conectar!");
-        return;
-      }
-
-      if (src === tgt) {
-        alert("Escolha dois nós diferentes.");
-        return;
-      }
-
-      if (!label) {
-        alert("Selecione ou digite o tipo de relação POO/Ontológica.");
-        return;
-      }
-
-      renderEdge({ source: src, target: tgt, label: label });
-      document.getElementById('edge-label-custom').value = '';
-    });
-
-    document.getElementById('btn-update-node').addEventListener('click', () => {
-      if (!selectedNodeMesh) return;
-
-      const newLabel = document.getElementById('edit-label').value.trim();
-      const newType = parseInt(document.getElementById('edit-type').value);
-
-      selectedNodeMesh.userData.label = newLabel;
-      selectedNodeMesh.userData.type = newType;
-
-      const colorHex = TYPE_COLORS[newType] !== undefined ? TYPE_COLORS[newType] : 0xffffff;
-      selectedNodeMesh.material.color.setHex(colorHex);
-      selectedNodeMesh.material.emissive.setHex(colorHex);
-
-      updateNodeDropdowns();
-      alert(`Nó '${newLabel}' atualizado!`);
-    });
-
-    document.getElementById('btn-delete-node').addEventListener('click', () => {
-      if (!selectedNodeMesh) return;
-
-      const idToDelete = cleanId(selectedNodeMesh.userData.id);
-
-      scene.remove(selectedNodeMesh);
-
-      const index = nodeObjects.indexOf(selectedNodeMesh);
-      if (index > -1) nodeObjects.splice(index, 1);
-      
-      delete nodeMap[idToDelete];
-
-      for (let i = edgeObjects.length - 1; i >= 0; i--) {
-        const edgeObj = edgeObjects[i];
-        if (edgeObj.sourceId === idToDelete || edgeObj.targetId === idToDelete) {
-          scene.remove(edgeObj.line);
-          scene.remove(edgeObj.arrow);
-          edgeObjects.splice(i, 1);
-        }
-      }
-
-      updateNodeDropdowns();
-      document.getElementById('selection-panel').style.display = 'none';
-      selectedNodeMesh = null;
-    });
-
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const tooltip = document.getElementById('tooltip');
-
-    window.addEventListener('mousemove', (e) => {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(nodeObjects);
-
-      if (intersects.length > 0) {
-        const data = intersects[0].object.userData;
-        tooltip.style.display = 'block';
-        tooltip.style.left = e.clientX + 12 + 'px';
-        tooltip.style.top = e.clientY + 12 + 'px';
-        tooltip.innerHTML = `<strong>${data.label}</strong>`;
-      } else {
-        tooltip.style.display = 'none';
-      }
-    });
-
-    // CONTROLE DE INTERAÇÃO VIA POINTERDOWN/POINTERUP (EVITA CONFLITO COM ORBITCONTROLS)
-    let pointerDownPos = { x: 0, y: 0 };
-
-    window.addEventListener('pointerdown', (e) => {
-      pointerDownPos.x = e.clientX;
-      pointerDownPos.y = e.clientY;
-    });
-
-    window.addEventListener('pointerup', (e) => {
-      // Ignora interações iniciadas dentro do painel lateral ou nos controlos HTML
-      if (e.target.closest('#ui-panel') || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
-
-      // Se moveu mais de 3px entre o clique e a soltura, significa que o utilizador estava a arrastar/rodar a câmara
-      const deltaX = Math.abs(e.clientX - pointerDownPos.x);
-      const deltaY = Math.abs(e.clientY - pointerDownPos.y);
-      if (deltaX > 3 || deltaY > 3) return;
-
-      // Recalcula as coordenadas normalizadas
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(nodeObjects);
-
-      if (intersects.length > 0) {
-        // CENÁRIO A: Clicou num Nó Existente
-        selectedNodeMesh = intersects[0].object;
-        const data = selectedNodeMesh.userData;
-
-        document.getElementById('selection-panel').style.display = 'block';
-        document.getElementById('edit-label').value = data.label;
-        document.getElementById('edit-type').value = data.type !== undefined ? data.type : 0;
-
-        // Atualiza os campos de criação com as coordenadas reais do nó clicado
-        document.getElementById('add-x').value = selectedNodeMesh.position.x.toFixed(2);
-        document.getElementById('add-y').value = selectedNodeMesh.position.y.toFixed(2);
-        document.getElementById('add-z').value = selectedNodeMesh.position.z.toFixed(2);
-      } else {
-        // CENÁRIO B: Clicou no Espaço Vazio — calcula a interseção com o plano Z = 0
-        const hit = raycaster.ray.intersectPlane(mathPlaneZZero, planeIntersectionPoint);
-
-        if (hit) {
-          // 1. Atualiza automaticamente os valores nos campos de texto (inputs)
-          document.getElementById('add-x').value = planeIntersectionPoint.x.toFixed(2);
-          document.getElementById('add-y').value = planeIntersectionPoint.y.toFixed(2);
-          document.getElementById('add-z').value = planeIntersectionPoint.z.toFixed(2);
-
-          // 2. Garante que a opção de coordenadas está visível
-          const coordRadio = document.querySelector('input[name="pos-mode"][value="coord"]');
-          if (coordRadio) {
-            coordRadio.checked = true;
-            document.getElementById('mode-coord-container').style.display = 'block';
-            document.getElementById('mode-between-container').style.display = 'none';
+          const dir = new THREE.Vector3().subVectors(posA, posB);
+          let dist = dir.length();
+          if (dist === 0) {
+            dir.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+            dist = 0.1;
           }
+
+          dir.normalize();
+          const forceMagnitude = repulsionStrength / (dist * dist);
+
+          nodes[i].force.addScaledVector(dir, forceMagnitude);
+          nodes[j].force.addScaledVector(dir, -forceMagnitude);
         }
       }
-    });
 
+      // 2. Atração de Mola (Lei de Hooke) entre nós conectados
+      links.forEach(link => {
+        const sourceIdx = nodes.findIndex(n => n.id === link.source);
+        const targetIdx = nodes.findIndex(n => n.id === link.target);
+
+        if (sourceIdx !== -1 && targetIdx !== -1) {
+          const posA = nodeObjects[sourceIdx].position;
+          const posB = nodeObjects[targetIdx].position;
+
+          const dir = new THREE.Vector3().subVectors(posB, posA);
+          const dist = dir.length();
+          dir.normalize();
+
+          const displacement = dist - springLength;
+          const forceMagnitude = displacement * springStrength;
+
+          nodes[sourceIdx].force.addScaledVector(dir, forceMagnitude);
+          nodes[targetIdx].force.addScaledVector(dir, -forceMagnitude);
+        }
+      });
+
+      // 3. Aplicação de Velocidade e Amortecimento
+      nodeObjects.forEach((obj, i) => {
+        const node = nodes[i];
+        node.velocity.add(node.force.multiplyScalar(0.016)); // dt delta-time
+        node.velocity.multiplyScalar(damping);
+        obj.position.add(node.velocity);
+      });
+    }
+
+    // --- Atualizar Posição das Linhas de Relação ---
+    function updateLinks() {
+      linkObjects.forEach(line => {
+        const link = line.userData;
+        const sourceNode = nodeObjects.find(obj => obj.userData.id === link.source);
+        const targetNode = nodeObjects.find(obj => obj.userData.id === link.target);
+
+        if (sourceNode && targetNode) {
+          const positions = line.geometry.attributes.position.array;
+          positions[0] = sourceNode.position.x;
+          positions[1] = sourceNode.position.y;
+          positions[2] = sourceNode.position.z;
+          positions[3] = targetNode.position.x;
+          positions[4] = targetNode.position.y;
+          positions[5] = targetNode.position.z;
+          line.geometry.attributes.position.needsUpdate = true;
+        }
+      });
+    }
+
+    // --- Loop de Animação ---
+    function animate() {
+      requestAnimationFrame(animate);
+
+      updatePhysics();
+      updateLinks();
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // Inicialização
+    applyLayout('force');
+    animate();
+
+    // Redimensionamento de janela
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
   </script>
 </body>
 </html>
