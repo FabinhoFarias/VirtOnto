@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import NodeSphere from './NodeSphere.jsx';
 import EdgeLines from './EdgeLines.jsx';
+import NodeLabel from './NodeLabel.jsx';
 
 /** A cena 3D: câmera, luzes, controles de órbita, esferas e arestas. */
 export default function GraphScene({ graph }) {
@@ -15,6 +16,9 @@ export default function GraphScene({ graph }) {
         <NodeSphere key={node.id} node={node} />
       ))}
       <EdgeLines edges={graph.edges} nodesById={graph.nodesById} />
+      {graph.nodes.map((node) => (
+        <NodeLabel key={node.id} node={node} />
+      ))}
 
       <axesHelper args={[3]} />
       <OrbitControls enableDamping />

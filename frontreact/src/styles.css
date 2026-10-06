@@ -60,6 +60,7 @@ button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 .data-panel {
   position: absolute;
   inset: 0;
+  z-index: 20;
   overflow-y: auto;
   padding: 1.25rem;
   background: rgba(23, 33, 47, 0.96);
@@ -116,3 +117,43 @@ tbody tr + tr td { border-top: 1px solid rgba(47, 62, 85, 0.5); }
 .muted { color: var(--muted); }
 .relation { color: var(--muted); font-style: italic; }
 tr.broken td { color: var(--warning); }
+
+.node-label {
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(23, 33, 47, 0.75);
+  color: var(--text);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.legend {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(31, 43, 61, 0.9);
+  font-size: 0.875rem;
+}
+.legend li + li { margin-top: 0.35rem; }
+.legend-swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+}
+.legend-edge {
+  display: inline-block;
+  width: 0.9rem;
+  height: 2px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  background: var(--muted);
+}
