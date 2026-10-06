@@ -36,7 +36,7 @@ export default function App() {
           </p>
         )}
         {!error && !graph && <p className="status">Carregando grafo…</p>}
-        {graph && <GraphScene nodes={graph.nodes} />}
+        {graph && <GraphScene graph={graph} />}
         {graph && showData && <DataPanel graph={graph} />}
       </main>
     </div>
