@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VirtOnto: motor espacial para visualização 3D de ontologias</title>
+  <meta name="description" content="Projeto de Estrutura de Dados Orientada a Objetos: motor em C++ que posiciona ontologias no espaço 3D e as exibe no navegador com Three.js." />
+  <style>
+    :root {
+      --ink: #1b1f24;
+      --muted: #5b6570;
+      --line: #e3e7ec;
+      --soft: #f5f7fa;
+      --accent: #2f6fd6;
+      --classe: #f0a020;
+      --individuo: #2fb36b;
+      --propriedade: #2f6fd6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #fff;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+    header { text-align: center; padding: 3.5rem 1.25rem 1.5rem; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.2; margin: 0 0 .75rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 1.1rem; margin: 0 0 1.25rem; }
+    .team { margin: 0; font-size: 1.05rem; }
+    .team span + span::before { content: " · "; color: var(--muted); }
+    .affil { color: var(--muted); margin: .25rem 0 1.5rem; }
+    .buttons { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+    .buttons a {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .55rem 1.1rem; border-radius: 999px;
+      background: var(--ink); color: #fff; text-decoration: none; font-weight: 600;
+    }
+    .buttons a:hover { background: #3a414a; }
+    .buttons a:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    figure { margin: 2rem 0; }
+    figure img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); display: block; }
+    figcaption { color: var(--muted); font-size: .92rem; margin-top: .6rem; text-align: center; }
+    section { margin-top: 3rem; }
+    h2 { font-size: 1.5rem; margin: 0 0 1rem; padding-bottom: .4rem; border-bottom: 1px solid var(--line); }
+    h3 { font-size: 1.08rem; margin: 0 0 .35rem; }
+    .lead { font-size: 1.08rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .grid.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .card { background: var(--soft); border-radius: 10px; padding: 1.1rem 1.2rem; }
+    .card p { margin: 0; color: var(--muted); }
+    .dots { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: .5rem 0 0; padding: 0; list-style: none; }
+    .dot { display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; margin-right: .45rem; vertical-align: baseline; }
+    .flow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem; margin: 1.25rem 0; }
+    .flow span { background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: .45rem .8rem; font-weight: 600; font-size: .95rem; }
+    .flow b { color: var(--muted); font-weight: 400; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .96rem; }
+    th, td { text-align: left; padding: .55rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; background: var(--soft); padding: .1em .35em; border-radius: 4px; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 1rem 1.2rem; border-radius: 10px; overflow-x: auto; font-size: .9rem; }
+    pre code { background: none; padding: 0; color: inherit; }
+    .video { position: relative; aspect-ratio: 16 / 9; background: var(--soft); border-radius: 10px; overflow: hidden; display: grid; place-items: center; color: var(--muted); }
+    .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    footer { text-align: center; color: var(--muted); font-size: .9rem; padding: 2rem 1rem; border-top: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>VirtOnto: motor espacial para visualização 3D de ontologias</h1>
+    <p class="subtitle">Um motor em C++ orientado a objetos que decide onde cada conceito fica no espaço, e uma cena 3D no navegador para explorar o resultado.</p>
+    <p class="team"><span>Rafael Vitor</span><span>Rafael Salles</span><span>Uirajan Silva</span><span>Fábio Farias</span></p>
+    <p class="affil">Estrutura de Dados Orientada a Objetos · Prof. Francisco Paulo Magalhaes Simoes</p>
+    <nav class="buttons" aria-label="Links do projeto">
+      <a id="link-codigo" href="#">Código</a>
+      <a id="link-relatorio" href="#">Relatório</a>
+      <a id="link-video" href="#video">Vídeo</a>
+    </nav>
+  </header>
+
+  <main>
+    <figure>
+      <img src="img/interface-edicao.png" alt="Interface do VirtOnto: painel lateral para criar nós e relações e, ao lado, a cena 3D com esferas coloridas ligadas por setas" />
+      <figcaption>Interface interativa: criação de nós e relações, com a cena 3D atualizada na hora.</figcaption>
+    </figure>
+
+    <section aria-labelledby="resumo">
+      <h2 id="resumo">Resumo</h2>
+      <p class="lead">Uma ontologia representa conhecimento como um grafo: <strong>classes</strong> (como Pessoa), <strong>indivíduos</strong> (como Ana) e <strong>propriedades</strong> (como temSintoma), ligados por relações. O grafo diz quem se liga com quem, mas não onde cada coisa deve aparecer.</p>
+      <p>O VirtOnto resolve esse problema com um motor espacial em C++: ele monta o grafo, aplica um algoritmo de posicionamento escolhido em tempo de execução e devolve as coordenadas x, y, z de cada nó. Uma camada web desenha o resultado em 3D com Three.js.</p>
+      <ul class="dots" aria-label="Cores dos tipos de nó">
+        <li><span class="dot" style="background: var(--classe)"></span>Classe</li>
+        <li><span class="dot" style="background: var(--individuo)"></span>Indivíduo</li>
+        <li><span class="dot" style="background: var(--propriedade)"></span>Propriedade</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="funcionalidades">
+      <h2 id="funcionalidades">O que o sistema faz</h2>
+      <div class="grid two">
+        <div class="card"><h3>Posiciona ontologias em 3D</h3><p>Lê a ontologia em JSON e calcula a posição de cada elemento.</p></div>
+        <div class="card"><h3>Três algoritmos de layout</h3><p>Esférico, hierárquico em camadas e força-dirigida, trocados em tempo de execução.</p></div>
+        <div class="card"><h3>Cena 3D interativa</h3><p>Girar, aproximar e explorar nós e relações direto no navegador.</p></div>
+        <div class="card"><h3>Criação de nós e relações</h3><p>Painel para adicionar conceitos e ligá-los, inclusive com relações de POO como <code>extends</code> e <code>hasA</code>.</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="arquitetura">
+      <h2 id="arquitetura">Arquitetura</h2>
+      <p>O motor é dividido em três camadas, cada uma num <em>namespace</em>: <code>model</code> (dados), <code>algorithm</code> (layouts) e <code>service</code> (entrada, saída e a Facade). Motor e visualização conversam apenas por um JSON combinado.</p>
+      <div class="flow" aria-label="Fluxo dos dados">
+        <span>Ontologia (JSON)</span><b>→</b><span>GraphBuilder</span><b>→</b><span>ILayoutStrategy</span><b>→</b><span>GraphSerializer</span><b>→</b><span>Cena 3D</span>
+      </div>
+      <figure>
+        <img src="img/diagrama-classes.svg" alt="Diagrama de classes: Node e Edge herdam da classe abstrata OntologyElement; três layouts implementam a interface ILayoutStrategy; a SpatialEngineFacade compõe Graph e a estratégia e usa GraphBuilder e GraphSerializer" />
+        <figcaption>Diagrama de classes do motor espacial em C++.</figcaption>
+      </figure>
+    </section>
+
+    <section aria-labelledby="poo">
+      <h2 id="poo">Orientação a objetos no projeto</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Conceito</th><th scope="col">Onde aparece</th></tr></thead>
+          <tbody>
+            <tr><td>Classe abstrata</td><td><code>OntologyElement</code> com <code>getDisplayColor() = 0</code> e destrutor virtual</td></tr>
+            <tr><td>Herança e polimorfismo</td><td><code>Node</code> e <code>Edge</code> herdam e sobrescrevem a cor (<code>override</code>)</td></tr>
+            <tr><td>Interface</td><td><code>ILayoutStrategy</code>, implementada pelos três algoritmos</td></tr>
+            <tr><td>Encapsulamento</td><td>Atributos privados com getters e setters; <code>id_</code> e <code>label_</code> protegidos</td></tr>
+            <tr><td>Composição</td><td><code>Node</code> contém <code>Vector3D</code>; <code>Graph</code> contém nós e arestas</td></tr>
+            <tr><td>Sobrecarga de operadores</td><td><code>Vector3D</code> com <code>+</code>, <code>-</code>, <code>*</code>, <code>+=</code>, <code>*=</code></td></tr>
+            <tr><td>Ponteiros inteligentes e STL</td><td><code>shared_ptr</code>, <code>unique_ptr</code>, <code>unordered_map</code>, <code>vector</code></td></tr>
+            <tr><td>Padrões de projeto</td><td>Strategy (layouts) e Facade (<code>SpatialEngineFacade</code>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>O padrão Strategy em uso: trocar o algoritmo muda o resultado sem alterar mais nenhuma linha.</p>
+<pre><code>SpatialEngineFacade engine;
+engine.loadOntologyGraph(json);
+engine.setLayoutStrategy(std::make_unique&lt;ForceDirectedLayout3D&gt;());
+engine.processLayout(300);
+std::string saida = engine.getRenderableJSON();</code></pre>
+    </section>
+
+    <section aria-labelledby="layouts">
+      <h2 id="layouts">Algoritmos de layout</h2>
+      <div class="grid">
+        <div class="card"><h3>Esférico</h3><p>Espiral de Fibonacci: distribui os nós de forma uniforme na superfície de uma esfera.</p></div>
+        <div class="card"><h3>Hierárquico</h3><p>Camadas por tipo: classes no topo, propriedades no meio, indivíduos embaixo.</p></div>
+        <div class="card"><h3>Força-dirigida</h3><p>Simulação física: nós se repelem, arestas puxam como molas, até o sistema estabilizar.</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="visualizacao">
+      <h2 id="visualizacao">Visualização</h2>
+      <p>A cena usa Three.js: uma <strong>cena</strong> com os objetos, uma <strong>câmera</strong> de perspectiva, <strong>luzes</strong> que dão volume às esferas e um <strong>renderizador</strong> que desenha tudo várias vezes por segundo.</p>
+    </section>
+
+    <section aria-labelledby="video">
+      <h2 id="video">Vídeo</h2>
+      <div class="video" id="video-box"><p>O vídeo de apresentação será adicionado aqui.</p></div>
+    </section>
+
+    <section aria-labelledby="executar">
+      <h2 id="executar">Como executar</h2>
+<pre><code>mkdir build &amp;&amp; cd build
+cmake .. -G "MinGW Makefiles"   # com Visual Studio: cmake ..
+cmake --build .
+./ontology_mock_test             # gera renderable.json
+python -m http.server 8000       # abrir http://localhost:8000</code></pre>
+    </section>
+  </main>
+
+  <footer>VirtOnto · Projeto da disciplina Estrutura de Dados Orientada a Objetos</footer>
+
+  <script>
+    // Preencha os links aqui. YOUTUBE_ID é o código que vem depois de "v=" no link do vídeo.
+    const LINKS = {
+      codigo: "https://github.com/FabinhoFarias/VirtOnto/tree/test",
+      relatorio: "LINK_DO_RELATORIO",
+      youtubeId: ""
+    };
+    document.getElementById("link-codigo").href = LINKS.codigo;
+    document.getElementById("link-relatorio").href = LINKS.relatorio;
+    if (LINKS.youtubeId) {
+      const box = document.getElementById("video-box");
+      box.innerHTML = '<iframe src="https://www.youtube.com/embed/' + LINKS.youtubeId +
+        '" title="Vídeo de apresentação do VirtOnto" allowfullscreen></iframe>';
+      document.getElementById("link-video").href = "https://youtu.be/" + LINKS.youtubeId;
+    }
+  </script>
+</body>
+</html>
